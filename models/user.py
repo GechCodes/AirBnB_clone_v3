@@ -6,16 +6,17 @@ from os import getenv
 import sqlalchemy
 from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
+import hashlib
 
 
 class User(BaseModel, Base):
     """Representation of a user """
     if models.storage_t == 'db':
         __tablename__ = 'users'
-        email = Column(String(128), nullable=False)
-        password = Column(String(128), nullable=False)
-        first_name = Column(String(128), nullable=True)
-        last_name = Column(String(128), nullable=True)
+        email = Column(String(100), nullable=False)
+        password = Column(String(100), nullable=False)
+        first_name = Column(String(100), nullable=True)
+        last_name = Column(String(100), nullable=False)
         places = relationship("Place", backref="user")
         reviews = relationship("Review", backref="user")
     else:
@@ -27,3 +28,7 @@ class User(BaseModel, Base):
     def __init__(self, *args, **kwargs):
         """initializes user"""
         super().__init__(*args, **kwargs)
+        if self.password:
+            hashed_password = hashlib.md5(self.password.encode("utf-8"))
+            self.password = hashed_password.hexdigest()
+
